@@ -1,0 +1,152 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    ext {
+        // Define Any Variable
+        deploymentEnvironments = ''
+        branchPattern = ''
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.property("springBootVersion")}"
+    }
+}
+
+allprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+        }
+    }
+
+
+    apply plugin: 'java'
+    apply plugin: 'application'
+    apply plugin: 'jacoco'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = project.property('groupName')
+    mainClassName = ''
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${project.property("springBootVersion")}"
+        }
+    }
+
+    configurations {
+        all*.exclude group: 'org.yaml', module: 'snakeyaml'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+}
+
+subprojects {
+    buildscript {
+        dependencies {
+            classpath("org.springframework.boot:spring-boot-gradle-plugin:${project.property("springBootVersion")}")
+        }
+    }
+
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        // Enable XLint using parameter -skipCompileArgs
+        if (!project.hasProperty('skipCompileArgs')) {
+            options.compilerArgs += ["-Xlint:unchecked"]
+        }
+    }
+
+    version = project.property("module.version")
+
+    branchPattern = System.getenv("BRANCH_PATTERN") ?: 'feature'
+    if (branchPattern == 'feature') version += '-SNAPSHOT'
+
+    dependencies {
+        // Spring Dependencies
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+
+        // AWS Dependency
+        implementation platform("com.amazonaws:aws-java-sdk-bom:${project.property("awsSdkV1Version")}")
+
+        // Test Dependencies
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    jacoco {
+        toolVersion = project.property("jacocoVersion")
+        reportsDirectory = layout.buildDirectory.dir("$buildDir/reports/jacoco")
+    }
+
+    jacocoTestReport {
+        group = "Reporting"
+        description = "Jacoco Coverage"
+        reports {
+            html.required = true
+            xml.required = true
+        }
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                enabled = false
+                limit {
+                    minimum = 0.85
+                }
+            }
+        }
+    }
+
+    check.dependsOn jacocoTestReport
+    check.dependsOn jacocoTestCoverageVerification
+
+    sourceSets {
+        main {
+            java.srcDirs += "build/generated/sources/annotationProcessor/java/main"
+        }
+    }
+}
+
+task resolveDependencies {
+    doLast {
+        project.rootProject.allprojects.each { subproject ->
+            subproject.buildscript.configurations.each { config -> resolveConfiguration(config)
+            }
+            subproject.configurations.each { config -> resolveConfiguration(config)
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDirs += ['src/main/java']
+    }
+    test {
+        java.srcDirs += ['src/test/java']
+    }
+}

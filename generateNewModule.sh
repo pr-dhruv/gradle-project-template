@@ -9,9 +9,9 @@ function generateModule() {
 
 	groupName=$(grep "groupName" gradle.properties | cut -d'=' -f2 | tr '.' '/')
 	artifactName=$(pwd | rev | cut -d'/' -f1 | rev)
-	artifactName="$(echo $artifactName | tr '[:upper]' '[:lower]' | tr -d '[\-\_]')"
+	artifactName="$(echo ${artifactName,,} | tr -d '[\-\_\ ]')"
 	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/{java,resources}
-	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/java/${groupName}/${artifactName}/"$(echo $MODULE_NAME | tr '[:upper]' '[:lower]' | tr -d '[\-\_]')"
+	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/java/${groupName}/${artifactName}/"$(echo ${MODULE_NAME,,} | tr -d '[\-\_\ ]')"
 	echo "Generating build.gradle..."
 echo \
 "jar {

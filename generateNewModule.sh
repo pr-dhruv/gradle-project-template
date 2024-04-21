@@ -6,8 +6,11 @@ function generateModule() {
 	MODULE_NAME=${1}
 	echo "Generating module: ${MODULE_NAME}..."
 
+	groupName=$(grep "groupName" gradle.properties | cut -d'=' -f2 | tr '.' '/')
+	artifactName=$(pwd | rev | cut -d'/' -f1 | rev)
+	artifactName="$(echo $artifactName | tr '[:upper]' '[:lower]' | tr -d '[\-\_]')"
 	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/{java,resources}
-
+	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/java/${groupName}/${artifactName}
 	echo "Generating build.gradle..."
 echo \
 "jar {
@@ -66,7 +69,7 @@ sonar.exclusions=
 sonar.qualitygate.wait=false" > ${WORK_DIR}/${MODULE_NAME}/sonar.properties
 
 	echo "Attaching ${MODULE_NAME} in root module..."
-	echo "include '${MODULE_NAME}'" >> ${WORK_DIR}/settings.gradle
+#	echo "include '${MODULE_NAME}'" >> ${WORK_DIR}/settings.gradle
 
 	echo "${MODULE_NAME} module generated."
 	echo ""

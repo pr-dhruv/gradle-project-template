@@ -69,7 +69,7 @@ sonar.exclusions=
 sonar.qualitygate.wait=false" > ${WORK_DIR}/${MODULE_NAME}/sonar.properties
 
 	echo "Attaching ${MODULE_NAME} in root module..."
-#	echo "include '${MODULE_NAME}'" >> ${WORK_DIR}/settings.gradle
+	echo "include '${MODULE_NAME}'" >> ${WORK_DIR}/settings.gradle
 
 	echo "${MODULE_NAME} module generated."
 	echo ""

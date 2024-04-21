@@ -10,7 +10,7 @@ function generateModule() {
 	artifactName=$(pwd | rev | cut -d'/' -f1 | rev)
 	artifactName="$(echo $artifactName | tr '[:upper]' '[:lower]' | tr -d '[\-\_]')"
 	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/{java,resources}
-	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/java/${groupName}/${artifactName}
+	mkdir -p ${WORK_DIR}/${MODULE_NAME}/src/{main,test}/java/${groupName}/${artifactName}/"$(echo $MODULE_NAME | tr '[:upper]' '[:lower]' | tr -d '[\-\_]')"
 	echo "Generating build.gradle..."
 echo \
 "jar {

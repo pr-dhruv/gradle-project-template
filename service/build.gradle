@@ -1,0 +1,25 @@
+jar {
+	archiveBaseName = project.name
+}
+
+buildscript {
+    dependencies {
+        classpath ("org.springframework.boot:spring-boot-gradle-plugin:${project.property("springBootVersion")}")
+    }
+}
+
+dependencies {
+	// service Module specific dependencies
+    implementation project(":api")
+    implementation project(":config")
+    implementation project(":util")
+}
+
+sourceSets {
+    main {
+        java.srcDirs += 'build/generated/sources/annotationProcessor/java/main'
+    }
+    test {
+    	java.srcDirs += 'build/generated/sources/annotationProcessor/java/test'
+    }
+}

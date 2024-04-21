@@ -1,1 +1,6 @@
-rootProject.name = 'step-orchestrator'
+rootProject.name = 'gradle-project-template'
+include 'api'
+include 'service'
+include 'model'
+include 'config'
+include 'util'
